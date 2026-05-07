@@ -37,9 +37,6 @@ app.use(
   })
 );
 
-// OPTIONS preflight ke liye
-app.options('*', cors());
-
 // Database Connection
 mongoose
   .connect(process.env.MONGO_URI)
