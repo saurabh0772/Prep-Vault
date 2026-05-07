@@ -12,6 +12,9 @@ dotenv.config();
 
 const app = express();
 
+// Trust proxy for secure cookies behind Render's load balancer
+app.set('trust proxy', 1);
+
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
