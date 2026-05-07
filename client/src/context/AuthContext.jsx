@@ -14,13 +14,18 @@ export const AuthProvider = ({ children }) => {
     // Check if user is logged in
     const checkAuth = async () => {
       try {
+        const token = localStorage.getItem('token');
         // Just calling a protected route or a specific /me route to verify token
         const res = await axiosInstance.get('/auth/me');
         if (res.data.userId) {
           // In a real app we might fetch user details, here we just set the id
           setUser({ id: res.data.userId });
+        } else if (token) {
+          // If we have a token but /me fails or returns empty, keep user assuming token is valid
+          // (Or let verifyToken middleware throw 401 which will clear it)
         }
       } catch (error) {
+        localStorage.removeItem('token');
         setUser(null);
       } finally {
         setLoading(false);
@@ -32,6 +37,9 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       const res = await axiosInstance.post('/auth/login', { email, password });
+      if (res.data.token) {
+        localStorage.setItem('token', res.data.token);
+      }
       setUser(res.data);
       toast.success('Logged in successfully');
       return true;
@@ -44,6 +52,9 @@ export const AuthProvider = ({ children }) => {
   const register = async (name, email, password) => {
     try {
       const res = await axiosInstance.post('/auth/register', { name, email, password });
+      if (res.data.token) {
+        localStorage.setItem('token', res.data.token);
+      }
       setUser(res.data);
       toast.success('Registered successfully');
       return true;
@@ -61,6 +72,7 @@ export const AuthProvider = ({ children }) => {
   const logout = async () => {
     try {
       await axiosInstance.post('/auth/logout');
+      localStorage.removeItem('token');
       setUser(null);
       toast.success('Logged out');
     } catch (error) {
