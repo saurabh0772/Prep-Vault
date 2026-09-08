@@ -36,7 +36,7 @@ Follow these instructions to set up the project locally.
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/your-username/PrepVault.git
+git clone https://github.com/saurabh0772PrepVault.git
 cd PrepVault
 ```
 
