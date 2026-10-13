@@ -3,6 +3,9 @@ import axios from 'axios';
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
   withCredentials: true,
+  headers: {
+    'x-api-key': 'free_m3hh7c0zm9'
+  }
 });
 
 // Before every request, attach token from localStorage if available
