@@ -11,22 +11,27 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user is logged in
     const checkAuth = async () => {
+      const token = localStorage.getItem('token');
+
+      // FIX: token hi nahi hai toh /me call mat karo - register page pe yahi ho raha tha
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+
       try {
-        const token = localStorage.getItem('token');
-        // Just calling a protected route or a specific /me route to verify token
         const res = await axiosInstance.get('/auth/me');
         if (res.data.userId) {
-          // In a real app we might fetch user details, here we just set the id
           setUser({ id: res.data.userId });
-        } else if (token) {
-          // If we have a token but /me fails or returns empty, keep user assuming token is valid
-          // (Or let verifyToken middleware throw 401 which will clear it)
         }
       } catch (error) {
-        localStorage.removeItem('token');
-        setUser(null);
+        // FIX: 429 aaye toh token delete mat karo, sirf 401 pe karo
+        if (error.response?.status === 401) {
+          localStorage.removeItem('token');
+          setUser(null);
+        }
+        // 429 ke liye kuch mat karo, user null rahega par token safe rahega
       } finally {
         setLoading(false);
       }
@@ -59,7 +64,6 @@ export const AuthProvider = ({ children }) => {
       toast.success('Registered successfully');
       return true;
     } catch (error) {
-      // Handle express-validator errors array
       if (error.response?.data?.errors) {
         error.response.data.errors.forEach(err => toast.error(err.msg));
       } else {
